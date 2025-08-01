@@ -1,0 +1,1907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UrbanRoute Bangalore | Smart Traffic Management</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Leaflet CSS for GitHub Pages compatibility -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <style>
+        :root {
+            --primary: #0F4C75;
+            --accent: #3282B8;
+            --alert: #F9A825;
+            --success: #4CAF50;
+            --error: #E53935;
+            --bg: #F0F4F8;
+            --text: #333;
+            --light-text: #f0f4f8;
+            --card-bg: #fff;
+            --shadow: rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header & Navigation */
+        header {
+            background-color: var(--primary);
+            color: var(--light-text);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.2rem 0;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo i {
+            margin-right: 10px;
+            color: var(--accent);
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+
+        .nav-links li {
+            margin-left: 2rem;
+        }
+
+        .nav-links a {
+            color: var(--light-text);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            font-size: 1.1rem;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent);
+        }
+
+        .hamburger {
+            display: none;
+            cursor: pointer;
+            font-size: 1.5rem;
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            background: linear-gradient(135deg, var(--primary) 0%, #1b5e8a 100%);
+            color: var(--light-text);
+            display: flex;
+            align-items: center;
+            padding-top: 70px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M0,0 L100,0 L100,100 Z" fill="rgba(255,255,255,0.1)"/></svg>');
+            background-size: cover;
+            opacity: 0.3;
+        }
+
+        .hero-content {
+            max-width: 700px;
+            z-index: 2;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            max-width: 600px;
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            border-radius: 10px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-box .number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: var(--accent);
+            color: white;
+            padding: 0.8rem 2rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 15px rgba(50, 130, 184, 0.3);
+        }
+
+        .btn:hover {
+            background-color: #1a6a9c;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(50, 130, 184, 0.4);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--accent);
+            margin-left: 15px;
+        }
+
+        /* Sections */
+        section {
+            padding: 5rem 0;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 3.5rem;
+            color: var(--primary);
+        }
+
+        .section-title h2 {
+            font-size: 2.5rem;
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-title h2::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: var(--accent);
+            border-radius: 2px;
+        }
+
+        /* Problem Section */
+        .problem-content {
+            display: flex;
+            align-items: center;
+            gap: 3rem;
+        }
+
+        .problem-text {
+            flex: 1;
+        }
+
+        .problem-image {
+            flex: 1;
+            background: linear-gradient(45deg, var(--primary), var(--accent));
+            height: 400px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 600;
+            text-align: center;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(15, 76, 117, 0.2);
+        }
+
+        /* Architecture Section */
+        .architecture {
+            background-color: var(--primary);
+            color: var(--light-text);
+        }
+
+        .architecture .section-title h2 {
+            color: white;
+        }
+
+        .architecture-steps {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .step {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 2rem;
+            width: 280px;
+            text-align: center;
+            backdrop-filter: blur(5px);
+            transition: transform 0.3s ease;
+        }
+
+        .step:hover {
+            transform: translateY(-10px);
+        }
+
+        .step-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            color: var(--accent);
+        }
+
+        .step h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .connector {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 2rem 0;
+            color: var(--accent);
+            font-size: 2rem;
+        }
+
+        /* Features Section */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 5px 15px var(--shadow);
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            color: var(--accent);
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+
+        /* Map Section */
+        .map-section {
+            padding: 3rem 0;
+            background-color: #e9f2f9;
+        }
+
+        .map-container {
+            height: 500px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        #bangalore-map {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .heatmap-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            border-radius: 15px;
+            display: none;
+            opacity: 0.7;
+        }
+
+        .map-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .map-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .map-btn:hover, .map-btn.active {
+            background: var(--primary);
+        }
+
+        .heatmap-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--primary);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .heatmap-toggle:hover {
+            background: #0d3d60;
+        }
+        
+        /* Traffic Legend */
+        .traffic-legend {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px 15px;
+            border-radius: 5px;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            font-size: 0.9rem;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        
+        .legend-color {
+            width: 15px;
+            height: 15px;
+            margin-right: 8px;
+            border-radius: 3px;
+        }
+
+        /* Dashboard Section */
+        .dashboard {
+            background-color: var(--bg);
+            padding-bottom: 3rem;
+        }
+
+        .dashboard-container {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .dashboard-header {
+            background-color: var(--primary);
+            color: white;
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .dashboard-content {
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .metric-card {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .metric-title {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .metric-icon {
+            font-size: 1.5rem;
+            margin-right: 10px;
+        }
+
+        .metric-value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .traffic-light {
+            width: 120px;
+            height: 300px;
+            background-color: #333;
+            border-radius: 20px;
+            margin: 2rem auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            align-items: center;
+            padding: 15px 0;
+            position: relative;
+        }
+
+        .light {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: #444;
+            position: relative;
+        }
+
+        .light-timer {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            display: none;
+        }
+
+        .light.active.red {
+            background-color: var(--error);
+            box-shadow: 0 0 20px var(--error);
+        }
+
+        .light.active.yellow {
+            background-color: var(--alert);
+            box-shadow: 0 0 20px var(--alert);
+        }
+
+        .light.active.green {
+            background-color: var(--success);
+            box-shadow: 0 0 20px var(--success);
+        }
+
+        .light.active .light-timer {
+            display: block;
+        }
+
+        .traffic-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        /* Benefits Section */
+        .benefits-content {
+            display: flex;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        .benefits-text {
+            flex: 1;
+        }
+
+        .benefits-chart {
+            flex: 1;
+            height: 300px;
+            background: linear-gradient(45deg, var(--primary), var(--accent));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 600;
+            box-shadow: 0 10px 30px rgba(15, 76, 117, 0.2);
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--primary);
+            color: var(--light-text);
+            padding: 4rem 0 2rem;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .footer-column h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            display: inline-block;
+        }
+
+        .footer-column h3::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background: var(--accent);
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.8rem;
+        }
+
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent);
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .social-icons a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            color: white;
+            transition: all 0.3s;
+        }
+
+        .social-icons a:hover {
+            background-color: var(--accent);
+            transform: translateY(-3px);
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Architecture Diagram */
+        .architecture-diagram {
+            display: flex;
+            justify-content: center;
+            margin: 3rem 0;
+        }
+        
+        .flow-container {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 800px;
+        }
+        
+        .flow-row {
+            display: flex;
+            justify-content: space-around;
+            margin: 1rem 0;
+        }
+        
+        .flow-item {
+            text-align: center;
+            width: 150px;
+            padding: 1.5rem 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            backdrop-filter: blur(5px);
+            position: relative;
+        }
+        
+        .flow-item:after {
+            content: "↓";
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.5rem;
+            color: var(--accent);
+        }
+        
+        .flow-row:last-child .flow-item:after {
+            display: none;
+        }
+        
+        .flow-item .icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: var(--accent);
+        }
+
+        /* Dashboard Enhancements */
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        
+        .alerts-panel {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .alert-item {
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            border-left: 4px solid;
+            border-radius: 4px;
+            background-color: rgba(0,0,0,0.03);
+        }
+        
+        .alert-high {
+            border-left-color: var(--error);
+        }
+        
+        .alert-medium {
+            border-left-color: var(--alert);
+        }
+        
+        .alert-low {
+            border-left-color: var(--success);
+        }
+        
+        .ai-status-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        
+        .confidence-meter {
+            width: 120px;
+            height: 120px;
+            position: relative;
+            margin: 1rem 0;
+        }
+        
+        .confidence-value {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        /* Scenario Simulation */
+        .simulation {
+            background-color: var(--bg);
+        }
+        
+        .scenario-container {
+            display: flex;
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+        
+        .scenario-chart {
+            flex: 1;
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            height: 300px;
+        }
+
+        /* Map Elements */
+        .traffic-hotspot-marker {
+            background-color: var(--error);
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 0 10px rgba(229, 57, 53, 0.7);
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        
+        .traffic-medium-marker {
+            background-color: var(--alert);
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(249, 168, 37, 0.7);
+        }
+        
+        .signal-marker {
+            background-color: var(--primary);
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+            box-shadow: 0 0 10px rgba(15, 76, 117, 0.7);
+        }
+        
+        .signal-marker.active {
+            background-color: var(--success);
+            animation: pulse 2s infinite;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .hero h1 {
+                font-size: 3rem;
+            }
+            
+            .problem-content,
+            .benefits-content {
+                flex-direction: column;
+            }
+            
+            .problem-image,
+            .benefits-chart {
+                width: 100%;
+            }
+
+            .scenario-container {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hamburger {
+                display: block;
+            }
+            
+            .nav-links {
+                position: fixed;
+                top: 70px;
+                left: -100%;
+                width: 100%;
+                height: calc(100vh - 70px);
+                background-color: var(--primary);
+                flex-direction: column;
+                align-items: center;
+                padding-top: 3rem;
+                transition: all 0.3s ease;
+            }
+            
+            .nav-links.active {
+                left: 0;
+            }
+            
+            .nav-links li {
+                margin: 1.5rem 0;
+            }
+            
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .hero p {
+                font-size: 1.1rem;
+            }
+            
+            .hero-stats {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+            
+            .stat-box {
+                width: 100%;
+            }
+            
+            .section-title h2 {
+                font-size: 2rem;
+            }
+
+            .flow-item {
+                width: 130px;
+                padding: 1rem 0.5rem;
+            }
+
+            .flow-item .icon {
+                font-size: 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .btn {
+                width: 100%;
+                text-align: center;
+                margin-bottom: 10px;
+            }
+
+            .btn-outline {
+                margin-left: 0;
+            }
+            
+            .feature-card {
+                padding: 1.5rem;
+            }
+
+            .map-container {
+                height: 350px;
+            }
+
+            .flow-row {
+                flex-direction: column;
+                align-items: center;
+                gap: 1rem;
+            }
+
+            .flow-item:after {
+                content: "→";
+                position: absolute;
+                right: -30px;
+                top: 50%;
+                bottom: auto;
+                left: auto;
+                transform: translateY(-50%) rotate(90deg);
+            }
+            
+            .traffic-legend {
+                bottom: 10px;
+                right: 10px;
+                padding: 5px 10px;
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header & Navigation -->
+    <header>
+        <div class="container">
+            <nav class="navbar">
+                <div class="logo">
+                    <i class="fas fa-traffic-light"></i>
+                    <span>UrbanRoute Bangalore</span>
+                </div>
+                <ul class="nav-links">
+                    <li><a href="#home" class="active">Home</a></li>
+                    <li><a href="#system">System</a></li>
+                    <li><a href="#dashboard">Dashboard</a></li>
+                    <li><a href="#map">Traffic Map</a></li>
+                    <li><a href="#simulation">Simulation</a></li>
+                    <li><a href="#about">About</a></li>
+                </ul>
+                <div class="hamburger">
+                    <i class="fas fa-bars"></i>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Home Page -->
+    <section id="home" class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>Smart Traffic Management for Bangalore</h1>
+                <p>AI-powered solutions to reduce congestion, improve commute times, and prioritize emergency vehicles in India's Silicon Valley.</p>
+                <div>
+                    <a href="#system" class="btn">How It Works</a>
+                    <a href="#dashboard" class="btn btn-outline">Live Dashboard</a>
+                </div>
+                
+                <div class="hero-stats">
+                    <div class="stat-box">
+                        <div class="number">40%</div>
+                        <div class="label">Traffic Increase</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="number">33%</div>
+                        <div class="label">Wait Time Reduction</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="number">99%</div>
+                        <div class="label">Emergency Response</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Problem Section -->
+    <section id="problem" class="problem">
+        <div class="container">
+            <div class="section-title">
+                <h2>Bangalore's Traffic Challenge</h2>
+            </div>
+            <div class="problem-content">
+                <div class="problem-text">
+                    <h3>Urban Congestion Crisis</h3>
+                    <p>Bangalore faces severe traffic congestion, leading to wasted time, higher pollution levels, and economic losses. Traditional traffic signal systems operate on fixed timers that can't adapt to real-time conditions, creating inefficiencies.</p>
+                    <p>During peak hours, drivers experience long queues at key intersections like Silk Board, KR Puram, and Hebbal, while emergency vehicles struggle to navigate through traffic. The lack of adaptive systems results in:</p>
+                    <ul style="padding-left: 20px; margin: 15px 0;">
+                        <li>Increased fuel consumption and emissions</li>
+                        <li>Longer commute times and driver frustration</li>
+                        <li>Delayed emergency response times</li>
+                        <li>Inefficient use of existing road infrastructure</li>
+                    </ul>
+                </div>
+                <div class="problem-image">
+                    <i class="fas fa-car-crash" style="font-size: 3rem; margin-bottom: 20px;"></i>
+                    <p>Traffic Congestion in Bangalore</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- System Architecture Section with Visual Flow -->
+    <section id="system" class="architecture">
+        <div class="container">
+            <div class="section-title">
+                <h2>System Architecture</h2>
+                <p>Modular design for adaptive traffic management</p>
+            </div>
+            
+            <div class="architecture-diagram">
+                <div class="flow-container">
+                    <div class="flow-row">
+                        <div class="flow-item">
+                            <div class="icon"><i class="fas fa-camera"></i></div>
+                            <h4>Data Collection</h4>
+                            <p>Traffic cameras, GPS, IoT sensors</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flow-row">
+                        <div class="flow-item">
+                            <div class="icon"><i class="fas fa-cloud"></i></div>
+                            <h4>Data Processing</h4>
+                            <p>Cloud-based aggregation</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flow-row">
+                        <div class="flow-item">
+                            <div class="icon"><i class="fas fa-brain"></i></div>
+                            <h4>AI Engine</h4>
+                            <p>Vehicle detection & prediction</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flow-row">
+                        <div class="flow-item">
+                            <div class="icon"><i class="fas fa-cogs"></i></div>
+                            <h4>Control System</h4>
+                            <p>Adaptive signal timing</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flow-row">
+                        <div class="flow-item">
+                            <div class="icon"><i class="fas fa-traffic-light"></i></div>
+                            <h4>Output</h4>
+                            <p>Signal control & notifications</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="architecture-steps">
+                <div class="step">
+                    <div class="step-icon">
+                        <i class="fas fa-camera"></i>
+                    </div>
+                    <h3>Data Collection</h3>
+                    <p>Real-time data from 500+ traffic cameras, GPS signals, IoT sensors across Bangalore</p>
+                </div>
+                
+                <div class="connector">
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+                
+                <div class="step">
+                    <div class="step-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3>AI Processing</h3>
+                    <p>Advanced algorithms for vehicle detection, density estimation, and traffic flow prediction</p>
+                </div>
+                
+                <div class="connector">
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+                
+                <div class="step">
+                    <div class="step-icon">
+                        <i class="fas fa-cogs"></i>
+                    </div>
+                    <h3>Control Actions</h3>
+                    <p>Adaptive signal timing, rerouting suggestions, and emergency vehicle prioritization</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Map Section with Real Bangalore Map -->
+    <section id="map" class="map-section">
+        <div class="container">
+            <div class="section-title">
+                <h2>Bangalore Traffic Map</h2>
+                <p>Real-time traffic conditions across the city</p>
+            </div>
+            
+            <div class="map-container">
+                <div id="bangalore-map"></div>
+                <div class="heatmap-overlay" id="heatmapOverlay"></div>
+                
+                <!-- Traffic Legend -->
+                <div class="traffic-legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: var(--success);"></div>
+                        <span>Free Flow</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: var(--alert);"></div>
+                        <span>Moderate</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: var(--error);"></div>
+                        <span>Heavy</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="signal-marker"><i class="fas fa-traffic-light"></i></div>
+                        <span style="margin-left: 8px;">Smart Signal</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="map-controls">
+                <button class="map-btn active" data-layer="traffic">Traffic Flow</button>
+                <button class="map-btn" data-layer="incidents">Incidents</button>
+                <button class="map-btn" data-layer="signals">Smart Signals</button>
+                <div class="heatmap-toggle" id="heatmapToggle">
+                    <input type="checkbox" id="heatmapCheckbox">
+                    <label for="heatmapCheckbox">Show Heatmap</label>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Enhanced Dashboard Section -->
+    <section id="dashboard" class="dashboard">
+        <div class="container">
+            <div class="section-title">
+                <h2>Live Dashboard</h2>
+            </div>
+            <div class="dashboard-container">
+                <div class="dashboard-header">
+                    <h3>Bangalore Central Control Panel</h3>
+                    <div class="status-indicator">
+                        <span><i class="fas fa-circle" style="color: var(--success);"></i> System Active</span>
+                    </div>
+                </div>
+                <div class="dashboard-content">
+                    <div class="metric-card">
+                        <div class="metric-title">
+                            <i class="fas fa-car metric-icon"></i>
+                            <h3>Vehicle Count</h3>
+                        </div>
+                        <div class="metric-value">8,425</div>
+                        <div class="metric-label">Current vehicles in monitored areas</div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-title">
+                            <i class="fas fa-tachometer-alt metric-icon"></i>
+                            <h3>Traffic Flow</h3>
+                        </div>
+                        <div class="metric-value">72%</div>
+                        <div class="metric-label">Efficiency compared to fixed signals</div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-title">
+                            <i class="fas fa-clock metric-icon"></i>
+                            <h3>Avg. Wait Time</h3>
+                        </div>
+                        <div class="metric-value">25s</div>
+                        <div class="metric-label">Reduced from 48s with fixed signals</div>
+                    </div>
+                    
+                    <div class="metric-card ai-status-card">
+                        <div class="metric-title">
+                            <i class="fas fa-microchip metric-icon"></i>
+                            <h3>AI Processing</h3>
+                        </div>
+                        <div class="confidence-meter">
+                            <canvas id="confidenceMeter"></canvas>
+                            <div class="confidence-value">98.6%</div>
+                        </div>
+                        <p>Model Confidence</p>
+                        <div style="margin-top: 10px; color: var(--success);">
+                            <i class="fas fa-check-circle"></i> Status: Active
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-title">
+                            <i class="fas fa-video metric-icon"></i>
+                            <h3>Live Camera Feed</h3>
+                        </div>
+                        <div style="position: relative; height: 200px; background: #e9ecef; border-radius: 8px; overflow: hidden;">
+                            <img src="https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Traffic Camera" style="width: 100%; height: 100%; object-fit: cover;">
+                            <div style="position: absolute; bottom: 10px; left: 10px; background: rgba(0,0,0,0.6); color: white; padding: 5px 10px; border-radius: 20px; font-size: 0.8rem;">
+                                Silk Board Junction
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="traffic-container">
+                            <div class="traffic-light">
+                                <div class="light red">
+                                    <div class="light-timer">0</div>
+                                </div>
+                                <div class="light yellow active">
+                                    <div class="light-timer">3</div>
+                                </div>
+                                <div class="light green">
+                                    <div class="light-timer">0</div>
+                                </div>
+                            </div>
+                            <div class="traffic-controls">
+                                <button class="btn" id="overrideBtn">Manual Override</button>
+                                <button class="btn btn-outline" id="emergencyBtn">Emergency Priority</button>
+                            </div>
+                            <div style="text-align: center; margin-top: 15px;">
+                                <small>Current Mode: <span id="trafficMode">Adaptive</span></small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card full-width">
+                        <div class="metric-title">
+                            <i class="fas fa-exclamation-triangle metric-icon"></i>
+                            <h3>Real-time Alerts</h3>
+                        </div>
+                        <div class="alerts-panel">
+                            <div class="alert-item alert-high">
+                                <strong>🚨 Emergency Vehicle Detected</strong>
+                                <p>Ambulance approaching KR Puram junction - Priority route activated</p>
+                                <small>2 minutes ago</small>
+                            </div>
+                            
+                            <div class="alert-item alert-medium">
+                                <strong>⚠️ Heavy Congestion</strong>
+                                <p>Traffic buildup at Silk Board junction - Signal timing adjusted</p>
+                                <small>8 minutes ago</small>
+                            </div>
+                            
+                            <div class="alert-item alert-low">
+                                <strong>ℹ️ System Update</strong>
+                                <p>Camera #42 at Hebbal Flyover offline for maintenance</p>
+                                <small>15 minutes ago</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Scenario Simulation Section -->
+    <section id="simulation" class="simulation">
+        <div class="container">
+            <div class="section-title">
+                <h2>Performance Simulation</h2>
+                <p>Before and after system implementation</p>
+            </div>
+            
+            <div class="scenario-container">
+                <div class="scenario-chart">
+                    <canvas id="trafficChart"></canvas>
+                </div>
+                
+                <div class="scenario-chart">
+                    <canvas id="timeChart"></canvas>
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 2rem;">
+                <button class="btn" id="runSimulation">Run Simulation</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>UrbanRoute Bangalore</h3>
+                    <p>AI-powered traffic management solutions for smarter cities and smoother commutes.</p>
+                    <div class="social-icons">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#"><i class="fab fa-github"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Quick Links</h3>
+                    <ul class="footer-links">
+                        <li><a href="#home">Home</a></li>
+                        <li><a href="#system">System Overview</a></li>
+                        <li><a href="#dashboard">Live Dashboard</a></li>
+                        <li><a href="#map">Traffic Map</a></li>
+                        <li><a href="#simulation">Simulation</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Key Locations</h3>
+                    <ul class="footer-links">
+                        <li><i class="fas fa-traffic-light"></i> Silk Board Junction</li>
+                        <li><i class="fas fa-traffic-light"></i> KR Puram</li>
+                        <li><i class="fas fa-traffic-light"></i> Hebbal Flyover</li>
+                        <li><i class="fas fa-traffic-light"></i> Trinity Circle</li>
+                        <li><i class="fas fa-traffic-light"></i> Marathahalli</li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Contact Us</h3>
+                    <ul class="footer-links">
+                        <li><i class="fas fa-envelope"></i> info@urbanroute.in</li>
+                        <li><i class="fas fa-phone"></i> +91 8660785714</li>
+                        <li><i class="fas fa-map-marker-alt"></i> BMS College of Enginnering, Basavangudi</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                <p>&copy; 2025 UrbanRoute Bangalore. All rights reserved. Part of the IDT Project: "Traffic Flow Management using AI: A Design Thinking Approach to Smart Mobility".</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Leaflet JS with GitHub Pages compatibility -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    
+    <script>
+        // Initialize Bangalore Map with Leaflet
+        function initMap() {
+            try {
+                // Create the map centered on Bangalore
+                const map = L.map('bangalore-map').setView([12.9716, 77.5946], 12);
+                
+                // Use CartoDB tiles for GitHub Pages compatibility
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+                    subdomains: 'abcd',
+                    maxZoom: 19
+                }).addTo(map);
+                
+                // Define key Bangalore locations
+                const locations = [
+                    { name: "Silk Board Junction", lat: 12.9170, lng: 77.6237, traffic: 0.8 },
+                    { name: "KR Puram", lat: 13.0035, lng: 77.6901, traffic: 0.7 },
+                    { name: "Hebbal Flyover", lat: 13.0399, lng: 77.5893, traffic: 0.6 },
+                    { name: "Trinity Circle", lat: 12.9711, lng: 77.6084, traffic: 0.9 },
+                    { name: "Marathahalli", lat: 12.9569, lng: 77.7011, traffic: 0.75 },
+                    { name: "Majestic", lat: 12.9774, lng: 77.5701, traffic: 0.85 },
+                    { name: "Indiranagar", lat: 12.9784, lng: 77.6408, traffic: 0.65 },
+                    { name: "Whitefield", lat: 12.9698, lng: 77.7499, traffic: 0.78 },
+                    { name: "Electronic City", lat: 12.8456, lng: 77.6603, traffic: 0.72 },
+                    { name: "Koramangala", lat: 12.9279, lng: 77.6271, traffic: 0.83 }
+                ];
+                
+                // Define major roads as polyline segments
+                const roads = [
+                    { 
+                        name: "Outer Ring Road",
+                        coords: [[12.9170, 77.6237], [12.9569, 77.7011], [12.9698, 77.7499]],
+                        traffic: 0.8
+                    },
+                    { 
+                        name: "MG Road",
+                        coords: [[12.9711, 77.6084], [12.9784, 77.6408], [12.9698, 77.7499]],
+                        traffic: 0.9
+                    },
+                    { 
+                        name: "Hosur Road",
+                        coords: [[12.9170, 77.6237], [12.8456, 77.6603]],
+                        traffic: 0.75
+                    },
+                    { 
+                        name: "Old Airport Road",
+                        coords: [[12.9711, 77.6084], [12.9569, 77.7011]],
+                        traffic: 0.7
+                    }
+                ];
+                
+                // Add roads to map with traffic-based coloring
+                roads.forEach(road => {
+                    const color = getTrafficColor(road.traffic);
+                    L.polyline(road.coords, {
+                        color: color,
+                        weight: 8,
+                        opacity: 0.8
+                    }).addTo(map).bindPopup(`<b>${road.name}</b><br>Traffic: ${Math.round(road.traffic * 100)}%`);
+                });
+                
+                // Add traffic markers for key locations
+                locations.forEach(location => {
+                    const color = getTrafficColor(location.traffic);
+                    const iconHtml = `
+                        <div class="traffic-hotspot-marker" style="background-color: ${color};">
+                            ${Math.round(location.traffic * 100)}
+                        </div>
+                    `;
+                    
+                    const icon = L.divIcon({
+                        html: iconHtml,
+                        className: '',
+                        iconSize: [24, 24],
+                        iconAnchor: [12, 12]
+                    });
+                    
+                    L.marker([location.lat, location.lng], { icon: icon })
+                        .addTo(map)
+                        .bindPopup(`<b>${location.name}</b><br>Traffic: ${Math.round(location.traffic * 100)}%`);
+                });
+                
+                // Add smart signal markers
+                const signals = [
+                    { name: "Silk Board Signal", lat: 12.9170, lng: 77.6237, active: true },
+                    { name: "KR Puram Signal", lat: 13.0035, lng: 77.6901, active: false },
+                    { name: "Hebbal Signal", lat: 13.0399, lng: 77.5893, active: true },
+                    { name: "Trinity Signal", lat: 12.9711, lng: 77.6084, active: true }
+                ];
+                
+                signals.forEach(signal => {
+                    const iconClass = signal.active ? 'signal-marker active' : 'signal-marker';
+                    const iconHtml = `<div class="${iconClass}"><i class="fas fa-traffic-light"></i></div>`;
+                    
+                    const icon = L.divIcon({
+                        html: iconHtml,
+                        className: '',
+                        iconSize: [30, 30],
+                        iconAnchor: [15, 15]
+                    });
+                    
+                    L.marker([signal.lat, signal.lng], { icon: icon })
+                        .addTo(map)
+                        .bindPopup(`<b>${signal.name}</b><br>Status: ${signal.active ? 'Active' : 'Inactive'}`);
+                });
+                
+                // Add incident markers
+                const incidents = [
+                    { 
+                        lat: 12.9279, 
+                        lng: 77.6271, 
+                        type: 'accident', 
+                        description: 'Car accident blocking one lane'
+                    },
+                    { 
+                        lat: 12.9569, 
+                        lng: 77.7011, 
+                        type: 'roadwork', 
+                        description: 'Road construction causing delays'
+                    }
+                ];
+                
+                incidents.forEach(incident => {
+                    const icon = L.divIcon({
+                        html: `<div style="background-color: #ff5252; color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 0 10px rgba(255,82,82,0.7);">
+                                  <i class="fas fa-exclamation-triangle"></i>
+                               </div>`,
+                        className: '',
+                        iconSize: [24, 24],
+                        iconAnchor: [12, 12]
+                    });
+                    
+                    L.marker([incident.lat, incident.lng], { icon: icon })
+                        .addTo(map)
+                        .bindPopup(`<b>${incident.type === 'accident' ? '🚗 Accident' : '🚧 Road Work'}</b><br>${incident.description}`);
+                });
+                
+                // Function to determine traffic color based on intensity
+                function getTrafficColor(intensity) {
+                    if (intensity < 0.4) return 'var(--success)'; // Green
+                    if (intensity < 0.7) return 'var(--alert)';   // Yellow
+                    return 'var(--error)';                        // Red
+                }
+                
+                // Simulate real-time traffic updates
+                setInterval(() => {
+                    // Update traffic levels randomly
+                    locations.forEach(loc => {
+                        loc.traffic = Math.min(0.95, Math.max(0.1, loc.traffic + (Math.random() - 0.5) * 0.1));
+                    });
+                    
+                    // Update roads randomly
+                    roads.forEach(road => {
+                        road.traffic = Math.min(0.95, Math.max(0.1, road.traffic + (Math.random() - 0.5) * 0.1));
+                    });
+                    
+                    // Re-render traffic markers
+                    map.eachLayer(layer => {
+                        if (layer instanceof L.Marker && layer.options.icon?.options?.html?.includes('traffic-hotspot-marker')) {
+                            map.removeLayer(layer);
+                        }
+                    });
+                    
+                    locations.forEach(location => {
+                        const color = getTrafficColor(location.traffic);
+                        const iconHtml = `
+                            <div class="traffic-hotspot-marker" style="background-color: ${color};">
+                                ${Math.round(location.traffic * 100)}
+                            </div>
+                        `;
+                        
+                        const icon = L.divIcon({
+                            html: iconHtml,
+                            className: '',
+                            iconSize: [24, 24],
+                            iconAnchor: [12, 12]
+                        });
+                        
+                        L.marker([location.lat, location.lng], { icon: icon })
+                            .addTo(map)
+                            .bindPopup(`<b>${location.name}</b><br>Traffic: ${Math.round(location.traffic * 100)}%`);
+                    });
+                    
+                    // Re-render roads
+                    map.eachLayer(layer => {
+                        if (layer instanceof L.Polyline) {
+                            map.removeLayer(layer);
+                        }
+                    });
+                    
+                    roads.forEach(road => {
+                        const color = getTrafficColor(road.traffic);
+                        L.polyline(road.coords, {
+                            color: color,
+                            weight: 8,
+                            opacity: 0.8
+                        }).addTo(map).bindPopup(`<b>${road.name}</b><br>Traffic: ${Math.round(road.traffic * 100)}%`);
+                    });
+                    
+                    // Update dashboard metrics randomly
+                    const vehicleCountEl = document.querySelector('.metric-card:nth-child(1) .metric-value');
+                    const trafficFlowEl = document.querySelector('.metric-card:nth-child(2) .metric-value');
+                    const waitTimeEl = document.querySelector('.metric-card:nth-child(3) .metric-value');
+                    
+                    let currentCount = parseInt(vehicleCountEl.textContent.replace(/,/g, ''));
+                    currentCount = Math.max(8000, Math.min(9000, currentCount + Math.floor(Math.random() * 100) - 50));
+                    vehicleCountEl.textContent = currentCount.toLocaleString();
+                    
+                    let currentFlow = parseFloat(trafficFlowEl.textContent);
+                    currentFlow = Math.max(70, Math.min(78, currentFlow + (Math.random() * 2 - 1)));
+                    trafficFlowEl.textContent = currentFlow.toFixed(0) + '%';
+                    
+                    let currentWait = parseFloat(waitTimeEl.textContent);
+                    currentWait = Math.max(20, Math.min(30, currentWait + (Math.random() * 2 - 1)));
+                    waitTimeEl.textContent = currentWait.toFixed(0) + 's';
+                    
+                }, 5000); // Update every 5 seconds
+                
+                return map;
+            } catch (error) {
+                console.error("Map initialization failed:", error);
+                document.getElementById('bangalore-map').innerHTML = `
+                    <div style="display: flex; justify-content: center; align-items: center; height: 100%; background: #f8f9fa; border-radius: 15px; text-align: center; padding: 20px;">
+                        <div>
+                            <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: var(--alert); margin-bottom: 15px;"></i>
+                            <h3>Map Loading Failed</h3>
+                            <p>Please check your internet connection and try again.</p>
+                            <p>If the problem persists, try reloading the page.</p>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // Initialize confidence meter
+        function initConfidenceMeter() {
+            const ctx = document.getElementById('confidenceMeter').getContext('2d');
+            const value = 98.6;
+            
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    datasets: [{
+                        data: [value, 100-value],
+                        backgroundColor: [getComputedStyle(document.documentElement).getPropertyValue('--success'), '#eee'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    cutout: '80%',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { enabled: false }
+                    }
+                }
+            });
+        }
+        
+        // Initialize scenario charts
+        function initSimulationCharts() {
+            // Traffic volume chart
+            const trafficCtx = document.getElementById('trafficChart').getContext('2d');
+            new Chart(trafficCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Silk Board', 'KR Puram', 'Hebbal'],
+                    datasets: [
+                        {
+                            label: 'Fixed Signals',
+                            data: [120, 85, 95],
+                            backgroundColor: 'rgba(229, 57, 53, 0.7)'
+                        },
+                        {
+                            label: 'With UrbanRoute',
+                            data: [210, 155, 180],
+                            backgroundColor: 'rgba(76, 175, 80, 0.7)'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Vehicles Processed Per Hour'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Vehicles'
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Wait time chart
+            const timeCtx = document.getElementById('timeChart').getContext('2d');
+            new Chart(timeCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Silk Board', 'KR Puram', 'Hebbal'],
+                    datasets: [
+                        {
+                            label: 'Fixed Signals',
+                            data: [72, 65, 58],
+                            backgroundColor: 'rgba(229, 57, 53, 0.7)'
+                        },
+                        {
+                            label: 'With UrbanRoute',
+                            data: [35, 28, 25],
+                            backgroundColor: 'rgba(76, 175, 80, 0.7)'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Average Wait Time (Seconds)'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Seconds'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Enhanced traffic light simulation
+        function enhancedLightSimulation() {
+            const lights = document.querySelectorAll('.light');
+            const timers = document.querySelectorAll('.light-timer');
+            let currentLight = 1; // Start with yellow
+            let timerValue = 3;
+            let mode = 'adaptive';
+            let countdownInterval;
+            
+            function updateLights() {
+                // Remove active class from all lights
+                lights.forEach(light => light.classList.remove('active'));
+                
+                // Add active class to current light
+                lights[currentLight].classList.add('active');
+                
+                // Reset all timers
+                timers.forEach(timer => {
+                    timer.textContent = '0';
+                    timer.style.display = 'none';
+                });
+                
+                // Set up timer for active light
+                if (mode === 'emergency') {
+                    // Emergency mode - green light stays on
+                    lights[2].classList.add('active');
+                    timers[2].textContent = '∞';
+                    timers[2].style.display = 'block';
+                    return;
+                }
+                
+                timerValue = currentLight === 0 ? 30 : (currentLight === 1 ? 3 : 45);
+                timers[currentLight].textContent = timerValue;
+                timers[currentLight].style.display = 'block';
+                
+                // Clear any existing interval
+                if (countdownInterval) clearInterval(countdownInterval);
+                
+                // Start countdown
+                countdownInterval = setInterval(() => {
+                    timerValue--;
+                    timers[currentLight].textContent = timerValue;
+                    
+                    if (timerValue <= 0) {
+                        clearInterval(countdownInterval);
+                        currentLight = (currentLight + 1) % lights.length;
+                        updateLights();
+                    }
+                }, 1000);
+            }
+            
+            // Start the simulation
+            updateLights();
+            
+            // Manual override button
+            document.getElementById('overrideBtn').addEventListener('click', function() {
+                mode = mode === 'adaptive' ? 'manual' : 'adaptive';
+                document.getElementById('trafficMode').textContent = mode.charAt(0).toUpperCase() + mode.slice(1);
+                
+                if (mode === 'manual') {
+                    this.textContent = 'Auto Mode';
+                    if (countdownInterval) clearInterval(countdownInterval);
+                    timers.forEach(timer => timer.style.display = 'none');
+                } else {
+                    this.textContent = 'Manual Override';
+                    updateLights();
+                }
+            });
+            
+            // Emergency button
+            document.getElementById('emergencyBtn').addEventListener('click', function() {
+                mode = 'emergency';
+                document.getElementById('trafficMode').textContent = 'Emergency';
+                updateLights();
+                
+                // Add alert
+                const alertPanel = document.querySelector('.alerts-panel');
+                const newAlert = document.createElement('div');
+                newAlert.className = 'alert-item alert-high';
+                newAlert.innerHTML = `
+                    <strong>🚨 Emergency Override Activated</strong>
+                    <p>Priority route enabled across central corridor</p>
+                    <small>Just now</small>
+                `;
+                alertPanel.insertBefore(newAlert, alertPanel.firstChild);
+                
+                // Reset after 30 seconds
+                setTimeout(() => {
+                    if (mode === 'emergency') {
+                        mode = 'adaptive';
+                        document.getElementById('trafficMode').textContent = 'Adaptive';
+                        updateLights();
+                    }
+                }, 30000);
+            });
+        }
+        
+        // Heatmap simulation
+        function initHeatmap() {
+            const toggle = document.getElementById('heatmapCheckbox');
+            const overlay = document.getElementById('heatmapOverlay');
+            
+            toggle.addEventListener('change', function() {
+                if (this.checked) {
+                    overlay.style.display = 'block';
+                    overlay.style.background = `
+                        radial-gradient(circle at 40% 35%, rgba(249, 168, 37, 0.5), transparent 70%),
+                        radial-gradient(circle at 60% 70%, rgba(229, 57, 53, 0.6), transparent 70%),
+                        radial-gradient(circle at 25% 60%, rgba(76, 175, 80, 0.4), transparent 70%)
+                    `;
+                } else {
+                    overlay.style.display = 'none';
+                }
+            });
+        }
+        
+        // Map controls functionality
+        function initMapControls() {
+            const mapBtns = document.querySelectorAll('.map-btn');
+            
+            mapBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // Remove active class from all buttons
+                    mapBtns.forEach(b => b.classList.remove('active'));
+                    
+                    // Add active class to clicked button
+                    this.classList.add('active');
+                    
+                    const layer = this.getAttribute('data-layer');
+                    
+                    // In a real implementation, this would change the map view
+                    console.log(`Switched to layer: ${layer}`);
+                });
+            });
+        }
+        
+        // Initialize all components when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            initMap();
+            initConfidenceMeter();
+            initSimulationCharts();
+            enhancedLightSimulation();
+            initHeatmap();
+            initMapControls();
+            
+            // Simulation button
+            document.getElementById('runSimulation').addEventListener('click', function() {
+                alert('Simulation started! System optimizing traffic flow patterns...');
+            });
+            
+            // Mobile Navigation Toggle
+            const hamburger = document.querySelector('.hamburger');
+            const navLinksContainer = document.querySelector('.nav-links');
+            
+            hamburger.addEventListener('click', () => {
+                navLinksContainer.classList.toggle('active');
+            });
+            
+            // Close mobile menu when clicking a link
+            document.querySelectorAll('.nav-links a').forEach(link => {
+                link.addEventListener('click', () => {
+                    navLinksContainer.classList.remove('active');
+                });
+            });
+            
+            // Simulate changing metrics
+            const metrics = {
+                vehicleCount: 8425,
+                trafficFlow: 72,
+                waitTime: 25
+            };
+            
+            setInterval(() => {
+                // Update vehicle count
+                metrics.vehicleCount += Math.floor(Math.random() * 50) - 25;
+                if (metrics.vehicleCount < 8000) metrics.vehicleCount = 8000;
+                if (metrics.vehicleCount > 9000) metrics.vehicleCount = 9000;
+                
+                // Update traffic flow efficiency
+                metrics.trafficFlow += Math.floor(Math.random() * 3) - 1;
+                if (metrics.trafficFlow < 70) metrics.trafficFlow = 70;
+                if (metrics.trafficFlow > 78) metrics.trafficFlow = 78;
+                
+                // Update wait time
+                metrics.waitTime += Math.floor(Math.random() * 3) - 1;
+                if (metrics.waitTime < 20) metrics.waitTime = 20;
+                if (metrics.waitTime > 30) metrics.waitTime = 30;
+                
+                // Update DOM
+                document.querySelector('.metric-card:nth-child(1) .metric-value').textContent = metrics.vehicleCount.toLocaleString();
+                document.querySelector('.metric-card:nth-child(2) .metric-value').textContent = metrics.trafficFlow + '%';
+                document.querySelector('.metric-card:nth-child(3) .metric-value').textContent = metrics.waitTime + 's';
+            }, 2500);
+        });
+    </script>
+</body>
+</html>
